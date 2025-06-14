@@ -1,0 +1,3 @@
+# Te.cpp
+
+**TE** is a text editor project being developed for educational purposes and aims to have vim-like skills and more ...
