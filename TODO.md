@@ -1,7 +1,8 @@
 # to do
 
-- [ ] show text
+- [ ] show file
 - [ ] edit file
-- [ ] command bar 
+- [ ] command bar
+- [ ] File tree extension
 
-- [ ] Live file editing with other users
+- [ ] Live file editing with other users (MQTT support -> live rooms)

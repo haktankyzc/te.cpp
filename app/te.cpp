@@ -28,12 +28,14 @@
 
 namespace fs = std::filesystem;
 
-enum EDITOR_MODE {
+typedef enum EDITOR_MODE {
   NORMAL,
   INSERT,
   VISUAL,
   COMMAND
-};
+} EDITOR_MODE;
+
+EDITOR_MODE current_mode = NORMAL; //NOTE: entry mode
 
 enum ArgvType {
   ARG_NONE,
@@ -76,7 +78,7 @@ class StatusBar {
       wrefresh(bar);
       return bar;
     }
-  
+  vector
     static std::string get_command_input(WINDOW *bar, int* cancelled) {
       std::string input;
   
@@ -102,7 +104,7 @@ class StatusBar {
                   wmove(bar, 0, len + 1);
                   wrefresh(bar);
               }
-          } else if (input.size() < MAX_INPUT - 1 && ch >= 32 && ch <= 126) {
+          } else if (input.size() < MAX_CMD_BAR_INPUT_L - 1 && ch >= 32 && ch <= 126) {
               input.push_back(ch);
               mvwprintw(bar, 0, input.size(), "%c", ch);
               wrefresh(bar);

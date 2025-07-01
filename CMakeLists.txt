@@ -13,7 +13,7 @@ find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(TE_CPP
-  src/te.cpp
+  app/te.cpp
 )
 
 target_link_libraries(TE_CPP ${CURSES_LIBRARIES})
