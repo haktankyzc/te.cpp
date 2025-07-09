@@ -13,7 +13,19 @@ find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
 add_executable(TE_CPP
-  app/te.cpp
+  $(CMAKE_SOURCE_DIR)/../app/main.cpp
+  
+  $(CMAKE_SOURCE_DIR)/../core/te.hpp
+
+  $(CMAKE_SOURCE_DIR)/../core/key_press/key_press.cpp
+  $(CMAKE_SOURCE_DIR)/../core/key_press/key_press.hpp
+
+  $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.cpp
+  $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.hpp
+  
+  $(CMAKE_SOURCE_DIR)/../utils/timer/timer.cpp
+  $(CMAKE_SOURCE_DIR)/../utils/timer/timer.hpp
+
 )
 
 target_link_libraries(TE_CPP ${CURSES_LIBRARIES})
