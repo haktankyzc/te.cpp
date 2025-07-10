@@ -14,8 +14,8 @@
 
 #define VERSION "0.1.0"
 
-const int logo_width = 50;
-const int logo_height = 6;
+const int te_cpp_logo_width = 50;
+const int te_cpp_logo_height = 6;
 const char *te_cpp_logo[] = {
     "████████╗███████╗         ██████╗██████╗ ██████╗ ",
     "╚══██╔══╝██╔════╝        ██╔════╝██╔══██╗██╔══██╗",
@@ -23,11 +23,10 @@ const char *te_cpp_logo[] = {
     "   ██║   ██╔══╝          ██║     ██╔═══╝ ██╔═══╝ ",
     "   ██║   ███████╗███████╗╚██████╗██║     ██║     ",
     "   ╚═╝   ╚══════╝╚══════╝ ╚═════╝╚═╝     ╚═╝     ",
-    nullptr
-};
+    nullptr};
 
 #include <ncurses.h>
-#include <cstring> 
+#include <cstring>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
@@ -54,11 +53,26 @@ typedef enum EDITOR_MODE
   COMMAND
 } EDITOR_MODE;
 
+typedef enum PAGE
+{
+  PAGE_ENTRY,
+  PAGE_EDITOR,
+  PAGE_FUZZY_SEARCH,
+  PAGE_COLLABORATION
+} PAGE;
+
+std::vector<std::string> options = {
+    "🔍  Fuzzy Finder",
+    "📄  New File",
+    "🤝  Collaboration",
+    "🚪  Quit"};
+
 EDITOR_MODE current_mode = NORMAL; // NOTE: entry mode
+PAGE current_page = PAGE_ENTRY;    // NOTE: entry page
 
 namespace Args
 {
-  enum ArgvType
+  enum Type
   {
     ARG_VERSION,
     ARG_HELP,
@@ -68,7 +82,7 @@ namespace Args
     ARG_NEW_FILE
   };
 
-  ArgvType classifyArgv(const std::string &arg)
+  Type classify(const std::string &arg)
   {
     if (arg == "--version")
       return ARG_VERSION;
@@ -85,9 +99,9 @@ namespace Args
 
 } // namespace Args
 
-namespace TE
+class TE
 {
-
+private:
   int TERM_ROWS = 0;
   int TERM_COLS = 0;
 
@@ -96,28 +110,50 @@ namespace TE
   WINDOW *collabWin;
   WINDOW *editorWin;
 
+public:
   void openEntryWin()
   {
     entryWin = newwin(TERM_ROWS, TERM_COLS, 0, 0);
 
     wclear(stdscr);
     wrefresh(stdscr);
-    // Renkleri tanımla
-    start_color();
-    use_default_colors();
-    init_pair(1, COLOR_GREEN, -1);
 
-    // Logo yazdır
+    // LOGO
     wattron(entryWin, COLOR_PAIR(1));
     int y = PADDING_T_B;
-    int x = (TERM_COLS - logo_width) / 2; // Logo'yu ortaliyoz
-
+    int x = (TERM_COLS - te_cpp_logo_width) / 2; // Logo'yu ortaliyozs
     for (int i = 0; te_cpp_logo[i] != nullptr; ++i)
       mvwprintw(entryWin, y++, x, "%s", te_cpp_logo[i]);
-
     wattroff(entryWin, COLOR_PAIR(1));
 
-    wrefresh(entryWin);
+    int highlighted = 0;
+    int choice = -1;
+    int start_y = te_cpp_logo_height + PADDING_T_B + 10;
+    int start_x = (TERM_COLS - 20) / 2; // Center the options
+    int spacing = 2;
+
+    while (true)
+    {
+      for (size_t i = 0; i < options.size(); ++i)
+      {
+        int y = start_y + i * spacing;
+
+        if ((int)i == highlighted)
+        {
+          attron(COLOR_PAIR(1));
+          mvprintw(y, start_x, "%s", options[i].c_str());
+          attroff(COLOR_PAIR(1));
+        }
+        else
+        {
+          attron(COLOR_PAIR(1));
+          mvprintw(y, start_x, "%s", options[i].c_str());
+          attroff(COLOR_PAIR(1));
+        }
+      }
+      wrefresh(entryWin);
+      break;
+    }
   }
 
   void initTerm()
@@ -128,6 +164,14 @@ namespace TE
     noecho();
     curs_set(1);
     getmaxyx(stdscr, TERM_ROWS, TERM_COLS); // Terminal boyutunu alalim kardess
+
+    // Renkleri tanımla
+    start_color();
+    use_default_colors();
+
+    // Entry Screen Pairs
+    init_pair(1, COLOR_GREEN, COLOR_BLACK); // Sİyah üstü yeşil yazı
+    init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
   }
 
   int startApp(int argc, char *argv[])
@@ -136,7 +180,7 @@ namespace TE
 
     if (argc > 1)
     {
-      Args::ArgvType argType = Args::classifyArgv(argv[1]);
+      Args::Type argType = Args::classify(argv[1]);
       switch (argType)
       {
       case Args::ARG_VERSION:
@@ -172,6 +216,7 @@ namespace TE
       initTerm();
       openEntryWin();
     }
+
     if (LINES < REQUIRED_TERM_ROWS || COLS < REQUIRED_TERM_COLS)
     {
       endwin();
@@ -187,5 +232,4 @@ namespace TE
     endwin();
     return EXIT_SUCCESS;
   }
-
 };

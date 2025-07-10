@@ -1,5 +1,6 @@
 # to do
 
+- [ ] Entry Menu Page 
 - [ ] show file
 - [ ] edit file
 - [ ] command bar
