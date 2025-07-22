@@ -12,6 +12,18 @@
 //  Desc    : Terminal Text Editor (te) for linux aims for multiple editor skills like online editing with other people and vim-like skills
 // ===================================================
 
+#include <ncurses.h>
+#include <cstring>
+#include <cstdlib>
+#include <iostream>
+#include <ostream>
+#include <string>
+#include <filesystem>
+
+#include "./status_bar/status_bar.hpp"
+#include "./input_handle/input_handler.hpp"
+#include "../utils/color_term.hpp"
+
 #define VERSION "0.1.0"
 
 const int te_cpp_logo_width = 50;
@@ -25,17 +37,6 @@ const char *te_cpp_logo[] = {
     "   ╚═╝   ╚══════╝╚══════╝ ╚═════╝╚═╝     ╚═╝     ",
     nullptr};
 
-#include <ncurses.h>
-#include <cstring>
-#include <cstdlib>
-#include <iostream>
-#include <ostream>
-#include <string>
-#include <filesystem>
-
-#include "./status_bar/status_bar.hpp"
-#include "./key_press/key_press.hpp"
-#include "../utils/color_term.hpp"
 
 // TODO: Split these measures to  another design file
 #define PADDING_L_R 2
@@ -65,7 +66,8 @@ std::vector<std::string> options = {
     "🔍  Fuzzy Finder",
     "📄  New File",
     "🤝  Collaboration",
-    "🚪  Quit"};
+    "🚪  Quit"
+};
 
 EDITOR_MODE current_mode = NORMAL; // NOTE: entry mode
 PAGE current_page = PAGE_ENTRY;    // NOTE: entry page
@@ -120,7 +122,7 @@ public:
 
     // LOGO
     wattron(entryWin, COLOR_PAIR(1));
-    int y = PADDING_T_B;
+    int y = TERM_COLS / 7;
     int x = (TERM_COLS - te_cpp_logo_width) / 2; // Logo'yu ortaliyozs
     for (int i = 0; te_cpp_logo[i] != nullptr; ++i)
       mvwprintw(entryWin, y++, x, "%s", te_cpp_logo[i]);
@@ -128,7 +130,7 @@ public:
 
     int highlighted = 0;
     int choice = -1;
-    int start_y = te_cpp_logo_height + PADDING_T_B + 10;
+    int start_y = te_cpp_logo_height + (TERM_COLS / 7) + 5;
     int start_x = (TERM_COLS - 20) / 2; // Center the options
     int spacing = 2;
 
@@ -227,6 +229,7 @@ public:
     int ch;
     while ((ch = getch()) != 'q')
     {
+      
     }
 
     endwin();

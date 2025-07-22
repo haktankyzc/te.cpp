@@ -15,10 +15,10 @@ include_directories(${CURSES_INCLUDE_DIR})
 add_executable(TE_CPP
   $(CMAKE_SOURCE_DIR)/../app/main.cpp
   
-  $(CMAKE_SOURCE_DIR)/../core/te.hpp
+  $(CMAKE_SOURCE_DIR)/../core/editor.hpp
 
-  $(CMAKE_SOURCE_DIR)/../core/key_press/key_press.cpp
-  $(CMAKE_SOURCE_DIR)/../core/key_press/key_press.hpp
+  $(CMAKE_SOURCE_DIR)/../core/input_handle/input_handler.cpp
+  $(CMAKE_SOURCE_DIR)/../core/input_handle/input_handler.hpp
 
   $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.cpp
   $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.hpp

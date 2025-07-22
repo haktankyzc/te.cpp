@@ -1,5 +1,0 @@
-class KeyPressHandler
-{
-private:
-public:
-};
