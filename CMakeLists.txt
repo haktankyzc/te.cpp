@@ -17,11 +17,17 @@ add_executable(TE_CPP
   
   $(CMAKE_SOURCE_DIR)/../core/editor.hpp
 
-  $(CMAKE_SOURCE_DIR)/../core/input_handle/input_handler.cpp
-  $(CMAKE_SOURCE_DIR)/../core/input_handle/input_handler.hpp
+  $(CMAKE_SOURCE_DIR)/../core/input_handler/input_handler.cpp
+  $(CMAKE_SOURCE_DIR)/../core/input_handler/input_handler.hpp
 
   $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.cpp
   $(CMAKE_SOURCE_DIR)/../core/status_bar/status_bar.hpp
+  
+  $(CMAKE_SOURCE_DIR)/../core/pages/entry_win/entryWin.hpp
+  $(CMAKE_SOURCE_DIR)/../core/pages/entry_win/entryWin.cpp
+  
+  $(CMAKE_SOURCE_DIR)/../common/styles/style.hpp
+  $(CMAKE_SOURCE_DIR)/../common/types.hpp
   
   $(CMAKE_SOURCE_DIR)/../utils/timer/timer.cpp
   $(CMAKE_SOURCE_DIR)/../utils/timer/timer.hpp

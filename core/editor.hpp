@@ -7,7 +7,7 @@
 //        |_|  |______|  \_____|_|    |_|
 //  Project : Te.cpp
 //  Author  : Haktan K.
-//  Version : v0.1.0
+//  Version : v0.1.0``
 //  Date    : 2025-06-14
 //  Desc    : Terminal Text Editor (te) for linux aims for multiple editor skills like online editing with other people and vim-like skills
 // ===================================================
@@ -20,31 +20,15 @@
 #include <string>
 #include <filesystem>
 
-#include "./status_bar/status_bar.hpp"
-#include "./input_handle/input_handler.hpp"
+#include "./input_handler/input_handler.hpp"
 #include "../utils/color_term.hpp"
+#include "../common/styles/style.hpp"
+#include "pages/entry_win/entryWin.hpp"
 
 #define VERSION "0.1.0"
 
-const int te_cpp_logo_width = 50;
-const int te_cpp_logo_height = 6;
-const char *te_cpp_logo[] = {
-    "████████╗███████╗         ██████╗██████╗ ██████╗ ",
-    "╚══██╔══╝██╔════╝        ██╔════╝██╔══██╗██╔══██╗",
-    "   ██║   █████╗          ██║     ██████╔╝██████╔╝",
-    "   ██║   ██╔══╝          ██║     ██╔═══╝ ██╔═══╝ ",
-    "   ██║   ███████╗███████╗╚██████╗██║     ██║     ",
-    "   ╚═╝   ╚══════╝╚══════╝ ╚═════╝╚═╝     ╚═╝     ",
-    nullptr};
-
-
-// TODO: Split these measures to  another design file
-#define PADDING_L_R 2
-#define PADDING_T_B 1
-#define REQUIRED_TERM_ROWS 30
-#define REQUIRED_TERM_COLS 80
-
 namespace fs = std::filesystem;
+auto &style = Style::instance();
 
 typedef enum EDITOR_MODE
 {
@@ -61,13 +45,6 @@ typedef enum PAGE
   PAGE_FUZZY_SEARCH,
   PAGE_COLLABORATION
 } PAGE;
-
-std::vector<std::string> options = {
-    "🔍  Fuzzy Finder",
-    "📄  New File",
-    "🤝  Collaboration",
-    "🚪  Quit"
-};
 
 EDITOR_MODE current_mode = NORMAL; // NOTE: entry mode
 PAGE current_page = PAGE_ENTRY;    // NOTE: entry page
@@ -101,76 +78,30 @@ namespace Args
 
 } // namespace Args
 
-class TE
+class TE : public InputHandler, public ENTRYWIN
 {
 private:
-  int TERM_ROWS = 0;
-  int TERM_COLS = 0;
-
-  WINDOW *entryWin;
-  WINDOW *fuzzyWin;
-  WINDOW *collabWin;
-  WINDOW *editorWin;
 
 public:
-  void openEntryWin()
-  {
-    entryWin = newwin(TERM_ROWS, TERM_COLS, 0, 0);
-
-    wclear(stdscr);
-    wrefresh(stdscr);
-
-    // LOGO
-    wattron(entryWin, COLOR_PAIR(1));
-    int y = TERM_COLS / 7;
-    int x = (TERM_COLS - te_cpp_logo_width) / 2; // Logo'yu ortaliyozs
-    for (int i = 0; te_cpp_logo[i] != nullptr; ++i)
-      mvwprintw(entryWin, y++, x, "%s", te_cpp_logo[i]);
-    wattroff(entryWin, COLOR_PAIR(1));
-
-    int highlighted = 0;
-    int choice = -1;
-    int start_y = te_cpp_logo_height + (TERM_COLS / 7) + 5;
-    int start_x = (TERM_COLS - 20) / 2; // Center the options
-    int spacing = 2;
-
-    while (true)
-    {
-      for (size_t i = 0; i < options.size(); ++i)
-      {
-        int y = start_y + i * spacing;
-
-        if ((int)i == highlighted)
-        {
-          attron(COLOR_PAIR(1));
-          mvprintw(y, start_x, "%s", options[i].c_str());
-          attroff(COLOR_PAIR(1));
-        }
-        else
-        {
-          attron(COLOR_PAIR(1));
-          mvprintw(y, start_x, "%s", options[i].c_str());
-          attroff(COLOR_PAIR(1));
-        }
-      }
-      wrefresh(entryWin);
-      break;
-    }
-  }
 
   void initTerm()
   {
+    //Initializes ncurses and sets the terminal settings
     initscr();
     raw();
     keypad(stdscr, TRUE);
     noecho();
     curs_set(1);
-    getmaxyx(stdscr, TERM_ROWS, TERM_COLS); // Terminal boyutunu alalim kardess
+    
+    int r,c = 0;
+    getmaxyx(stdscr, r, c); // Terminal boyutunu alalim kardess
+    style.updateFromWindowSize(c, r);
+
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL); //For mouse events
 
     // Renkleri tanımla
     start_color();
     use_default_colors();
-
     // Entry Screen Pairs
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Sİyah üstü yeşil yazı
     init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
@@ -219,17 +150,44 @@ public:
       openEntryWin();
     }
 
-    if (LINES < REQUIRED_TERM_ROWS || COLS < REQUIRED_TERM_COLS)
+    if (LINES < style.required_term_rows() || COLS < style.required_term_cols())
     {
       endwin();
-      std::cerr << "Terminal size (" << TERM_ROWS << "," << TERM_COLS << ")" << TERM_RED(" is too small") << ". Minimum size is " << REQUIRED_TERM_ROWS << "x" << REQUIRED_TERM_COLS << std::endl;
+      std::cerr << "Terminal size (" << LINES << "," << COLS << ") " << TERM_RED("is too small") << ". Minimum size is " << style.required_term_rows() << "x" << style.required_term_cols() << std::endl;
       return EXIT_FAILURE;
     }
 
     int ch;
     while ((ch = getch()) != 'q')
     {
-      
+      endwin();
+      ENTRY_CHOICE choice;
+      InputEvent event = getUserInput(ch);
+      if(event.type == InputType::KEY_PRESS_DOWN){
+        moveEntryWinCursor(MENU_CURSOR_MOVE::DOWN);
+      }
+      if(event.type == InputType::KEY_PRESS_UP){
+        moveEntryWinCursor(MENU_CURSOR_MOVE::UP);
+      } if(event.type == InputType::KEY_PRESS_ENTER){
+        choice = getChoice();
+        endwin();
+        switch (choice)
+        {
+        case ENTRY_CHOICE::FUZZY_FINDER:
+          std::cout << "Fuzzy Finder is not implemented yet.\n";
+          break;
+        case ENTRY_CHOICE::NEW_FILE:
+          std::cout << "New File is not implemented yet.\n";
+          break;
+        case ENTRY_CHOICE::COLLABORATION:
+          std::cout << "Collaboration is not implemented yet.\n";
+          break;
+        case ENTRY_CHOICE::QUIT:
+          return EXIT_SUCCESS;
+        }
+        return EXIT_SUCCESS;
+      }
+      //return EXIT_SUCCESS;
     }
 
     endwin();

@@ -1,7 +1,7 @@
 # to do
 
 - [x] Entry Menu Page
-- [ ] Entr Menu Page choice management 
+- [x] Entr Menu Page choice management 
 
 - [ ] Editor Page show file
 - [ ] Editor Page edit file
