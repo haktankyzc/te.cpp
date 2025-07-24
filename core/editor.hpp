@@ -91,7 +91,7 @@ public:
     raw();
     keypad(stdscr, TRUE);
     noecho();
-    curs_set(1);
+    curs_set(0);
     
     int r,c = 0;
     getmaxyx(stdscr, r, c); // Terminal boyutunu alalim kardess
