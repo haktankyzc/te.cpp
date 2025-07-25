@@ -21,7 +21,7 @@ typedef enum class CHOICE
     QUIT
 } ENTRY_CHOICE;
 
-class ENTRYWIN
+class EntryWin
 {
 private:
     WINDOW *entryWin;
@@ -38,7 +38,7 @@ public:
     void moveEntryWinCursor(MENU_CURSOR_MOVE direction);
     ENTRY_CHOICE getChoice();
 
-    int highlighted; //Chosen option index
+    int highlighted = 0; //Chosen option index
 };
 
 #endif // ENTRY_WIN_HPP

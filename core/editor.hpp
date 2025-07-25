@@ -30,13 +30,6 @@
 namespace fs = std::filesystem;
 auto &style = Style::instance();
 
-typedef enum EDITOR_MODE
-{
-  NORMAL,
-  INSERT,
-  VISUAL,
-  COMMAND
-} EDITOR_MODE;
 
 typedef enum PAGE
 {
@@ -46,7 +39,6 @@ typedef enum PAGE
   PAGE_COLLABORATION
 } PAGE;
 
-EDITOR_MODE current_mode = NORMAL; // NOTE: entry mode
 PAGE current_page = PAGE_ENTRY;    // NOTE: entry page
 
 namespace Args
@@ -78,7 +70,7 @@ namespace Args
 
 } // namespace Args
 
-class TE : public InputHandler, public ENTRYWIN
+class TE : public InputHandler, public EntryWin
 {
 private:
 
@@ -110,7 +102,7 @@ public:
   int startApp(int argc, char *argv[])
   {
     setlocale(LC_ALL, ""); // UTF-8 karakterler bu olmadan olmiyomis haci
-
+    //TODO: Split here to eventmanager class (HandleArgs)
     if (argc > 1)
     {
       Args::Type argType = Args::classify(argv[1]);
@@ -147,7 +139,7 @@ public:
     else
     { // ARG_NONE
       initTerm();
-      openEntryWin();
+      EntryWin::openEntryWin();
     }
 
     if (LINES < style.required_term_rows() || COLS < style.required_term_cols())
@@ -162,12 +154,12 @@ public:
     {
       endwin();
       ENTRY_CHOICE choice;
-      InputEvent event = getUserInput(ch);
+      InputEvent event = InputHandler::getUserInput(ch);
       if(event.type == InputType::KEY_PRESS_DOWN){
-        moveEntryWinCursor(MENU_CURSOR_MOVE::DOWN);
+        EntryWin::moveEntryWinCursor(MENU_CURSOR_MOVE::DOWN);
       }
       if(event.type == InputType::KEY_PRESS_UP){
-        moveEntryWinCursor(MENU_CURSOR_MOVE::UP);
+        EntryWin::moveEntryWinCursor(MENU_CURSOR_MOVE::UP);
       } if(event.type == InputType::KEY_PRESS_ENTER){
         choice = getChoice();
         endwin();

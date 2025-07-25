@@ -1,3 +1,6 @@
+#ifndef STATUS_BAR_HPP
+#define STATUS_BAR_HPP
+
 #include <string>
 #include <ncurses.h>
 
@@ -24,17 +27,19 @@ private:
     MyTimer bar_timer;
     
 public:
-    typedef enum BAR_ELEMENT
+    typedef enum STATUS_BAR_ELEMENT
     {
         BAR_MODE,
         BAR_CURRENT_FILE,
         BAR_COL_INFO,
-    } BAR_ELEMENT;
+    } STATUS_BAR_ELEMENT;
 
     StatusBar();
     ~StatusBar();
 
-    static WINDOW *draw_status_bar(WINDOW *parentWIN);
-    static std::string get_command_input(WINDOW *bar, int *cancelled);
-    static void updateBar(BAR_ELEMENT element, const std::string &value);
+    WINDOW *draw_status_bar(WINDOW *parentWIN);
+    std::string get_command_input(WINDOW *bar, int *cancelled);
+    void updateBar(STATUS_BAR_ELEMENT element, const std::string &value);
 };
+
+#endif // STATUS_BAR_HPP

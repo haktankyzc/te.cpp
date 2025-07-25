@@ -1,6 +1,6 @@
 #include "entryWin.hpp"
 
-void ENTRYWIN::openEntryWin()
+void EntryWin::openEntryWin()
 {
     entryWin = newwin(Style::instance().term_rows(), Style::instance().term_cols(), 0, 0);
 
@@ -16,11 +16,11 @@ void ENTRYWIN::openEntryWin()
         mvwprintw(entryWin, y++, x, "%s", row.c_str());
     wattroff(entryWin, COLOR_PAIR(1));
 
-    int highlighted = 1;
+    int highlighted = 0;
     drawOptions(highlighted);
 }
 
-void ENTRYWIN::drawOptions(int highlighted)
+void EntryWin::drawOptions(int highlighted)
 {
 
     int start_y = Style::instance().logo_height() + (Style::instance().term_cols() / 7) + 5;
@@ -47,7 +47,7 @@ void ENTRYWIN::drawOptions(int highlighted)
     wrefresh(entryWin);
 }
 
-void ENTRYWIN::moveEntryWinCursor(MENU_CURSOR_MOVE direction)
+void EntryWin::moveEntryWinCursor(MENU_CURSOR_MOVE direction)
 {
     if (direction == MENU_CURSOR_MOVE::UP)
     {
@@ -60,7 +60,7 @@ void ENTRYWIN::moveEntryWinCursor(MENU_CURSOR_MOVE direction)
     drawOptions(highlighted);
 }
 
-ENTRY_CHOICE ENTRYWIN::getChoice()
+ENTRY_CHOICE EntryWin::getChoice()
 {
     switch (highlighted)
     {

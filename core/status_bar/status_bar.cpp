@@ -1,6 +1,6 @@
 #include "status_bar.hpp"
 
-static WINDOW *draw_status_bar(WINDOW *parentWIN)
+WINDOW *draw_status_bar(WINDOW *parentWIN)
 {
 
     int width = COLS;
@@ -22,7 +22,7 @@ static WINDOW *draw_status_bar(WINDOW *parentWIN)
     return bar;
 }
 
-static std::string get_command_input(WINDOW *bar, int *cancelled)
+std::string get_command_input(WINDOW *bar, int *cancelled)
 {
     std::string input;
 
