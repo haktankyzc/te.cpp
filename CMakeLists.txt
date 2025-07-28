@@ -25,7 +25,10 @@ add_executable(TE_CPP
   
   $(CMAKE_SOURCE_DIR)/../core/pages/entry_win/entryWin.hpp
   $(CMAKE_SOURCE_DIR)/../core/pages/entry_win/entryWin.cpp
-  
+ 
+  $(CMAKE_SOURCE_DIR)/../core/pages/editor_win/editorWin.cpp 
+  $(CMAKE_SOURCE_DIR)/../core/pages/editor_win/editorWin.hpp 
+
   $(CMAKE_SOURCE_DIR)/../common/styles/style.hpp
   $(CMAKE_SOURCE_DIR)/../common/types.hpp
   

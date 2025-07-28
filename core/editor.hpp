@@ -9,20 +9,22 @@
 //  Author  : Haktan K.
 //  Version : v0.1.0``
 //  Date    : 2025-06-14
-//  Desc    : Terminal Text Editor (te) for linux aims for multiple editor skills like online editing with other people and vim-like skills
+//  Desc    : Terminal Text Editor (te) for linux aims for multiple editor
+//  skills like online editing with other people and vim-like skills
 // ===================================================
 
-#include <ncurses.h>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
+#include <filesystem>
 #include <iostream>
+#include <ncurses.h>
 #include <ostream>
 #include <string>
-#include <filesystem>
 
-#include "./input_handler/input_handler.hpp"
-#include "../utils/color_term.hpp"
 #include "../common/styles/style.hpp"
+#include "../utils/color_term.hpp"
+#include "./input_handler/input_handler.hpp"
+#include "./pages/editor_win/editorWin.hpp"
 #include "pages/entry_win/entryWin.hpp"
 
 #define VERSION "0.1.0"
@@ -30,66 +32,58 @@
 namespace fs = std::filesystem;
 auto &style = Style::instance();
 
-
-typedef enum PAGE
-{
+typedef enum PAGE {
   PAGE_ENTRY,
   PAGE_EDITOR,
   PAGE_FUZZY_SEARCH,
   PAGE_COLLABORATION
 } PAGE;
 
-PAGE current_page = PAGE_ENTRY;    // NOTE: entry page
+PAGE current_page = PAGE_ENTRY; // NOTE: entry page
 
-namespace Args
-{
-  enum Type
-  {
-    ARG_VERSION,
-    ARG_HELP,
-    ARG_CONFIG,
-    ARG_FILE,
-    ARG_FOLDER,
-    ARG_NEW_FILE
-  };
+namespace Args {
+enum Type {
+  ARG_VERSION,
+  ARG_HELP,
+  ARG_CONFIG,
+  ARG_FILE,
+  ARG_FOLDER,
+  ARG_NEW_FILE
+};
 
-  Type classify(const std::string &arg)
-  {
-    if (arg == "--version")
-      return ARG_VERSION;
-    if (arg == "--help")
-      return ARG_HELP;
-    if (arg == "--config")
-      return ARG_CONFIG;
-    if (fs::is_regular_file(arg))
-      return ARG_FILE;
-    if (fs::is_directory(arg))
-      return ARG_FOLDER;
-    return ARG_NEW_FILE;
-  }
+Type classify(const std::string &arg) {
+  if (arg == "--version")
+    return ARG_VERSION;
+  if (arg == "--help")
+    return ARG_HELP;
+  if (arg == "--config")
+    return ARG_CONFIG;
+  if (fs::is_regular_file(arg))
+    return ARG_FILE;
+  if (fs::is_directory(arg))
+    return ARG_FOLDER;
+  return ARG_NEW_FILE;
+}
 
 } // namespace Args
 
-class TE : public InputHandler, public EntryWin
-{
+class TE : public InputHandler, public EntryWin, public EditorWin {
 private:
-
 public:
-
-  void initTerm()
-  {
-    //Initializes ncurses and sets the terminal settings
+  void initTerm() {
+    // Initializes ncurses and sets the terminal settings
     initscr();
     raw();
     keypad(stdscr, TRUE);
     noecho();
     curs_set(0);
-    
-    int r,c = 0;
+
+    int r, c = 0;
     getmaxyx(stdscr, r, c); // Terminal boyutunu alalim kardess
     style.updateFromWindowSize(c, r);
 
-    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION, NULL); //For mouse events
+    mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION,
+              NULL); // For mouse events
 
     // Renkleri tanımla
     start_color();
@@ -99,15 +93,12 @@ public:
     init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
   }
 
-  int startApp(int argc, char *argv[])
-  {
+  int startApp(int argc, char *argv[]) {
     setlocale(LC_ALL, ""); // UTF-8 karakterler bu olmadan olmiyomis haci
-    //TODO: Split here to eventmanager class (HandleArgs)
-    if (argc > 1)
-    {
+    // TODO: Split here to eventmanager class (HandleArgs)
+    if (argc > 1) {
       Args::Type argType = Args::classify(argv[1]);
-      switch (argType)
-      {
+      switch (argType) {
       case Args::ARG_VERSION:
         std::cout << "te version " << VERSION << std::endl;
         return EXIT_SUCCESS;
@@ -135,20 +126,24 @@ public:
         std::cout << "ARG_NEW_FILE open option is not implemented yet.\n";
         return EXIT_FAILURE;
       }
-    }
-    else
-    { // ARG_NONE
+    } else { // ARG_NONE
       initTerm();
-      EntryWin::openEntryWin();
+      // EntryWin::openEntryWin();
+      EditorWin::open(EDITOR_OPEN_MODE::OPEN_FILE, "yeni.txt");
     }
 
-    if (LINES < style.required_term_rows() || COLS < style.required_term_cols())
-    {
+    if (LINES < style.required_term_rows() ||
+        COLS < style.required_term_cols()) {
       endwin();
-      std::cerr << "Terminal size (" << LINES << "," << COLS << ") " << TERM_RED("is too small") << ". Minimum size is " << style.required_term_rows() << "x" << style.required_term_cols() << std::endl;
+      std::cerr << "Terminal size (" << LINES << "," << COLS << ") "
+                << TERM_RED("is too small") << ". Minimum size is "
+                << style.required_term_rows() << "x"
+                << style.required_term_cols() << std::endl;
       return EXIT_FAILURE;
     }
 
+    /*
+    // Entry Win basic test example
     int ch;
     while ((ch = getch()) != 'q')
     {
@@ -180,6 +175,17 @@ public:
         return EXIT_SUCCESS;
       }
       //return EXIT_SUCCESS;
+    }
+    */
+    int ch;
+    while ((ch = getch()) != 'q') {
+      InputEvent event = InputHandler::getUserInput(ch);
+      if (event.type == InputType::KEY_PRESS_COLON) {
+        std::string com = EditorWin::getStatusBarCommand();
+        endwin();
+        std::cout << " Entered command: " << com << std::endl;
+        return EXIT_SUCCESS;
+      }
     }
 
     endwin();

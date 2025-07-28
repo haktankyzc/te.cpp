@@ -1,76 +1,79 @@
 #include "status_bar.hpp"
 
-WINDOW *draw_status_bar(WINDOW *parentWIN)
-{
+StatusBar::StatusBar() {}
+StatusBar::~StatusBar() {}
 
-    int width = COLS;
-    int height = 1;
-    int starty = LINES - 1;
+WINDOW *StatusBar::draw_status_bar(WINDOW *parentWIN) {
+  int win_height, win_width;
+  getmaxyx(parentWIN, win_height, win_width);
 
-    start_color();
-    init_pair(1, COLOR_BLUE, COLOR_BLACK);
+  int height = 1;
+  int starty = win_height - 1;
 
-    WINDOW *bar = derwin(parentWIN, height, width, starty, 0);
-    wbkgd(bar, COLOR_PAIR(1));
-    werase(bar);
+  // start_color();
+  // init_pair(1, COLOR_BLACK, COLOR_GREEN);
 
-    mvwprintw(bar, 0, 0, "Mode: NORMAL");
-    mvwprintw(bar, 0, 20, "Status: READY");
-    mvwprintw(bar, 0, 45, "Press ':' to enter command");
+  WINDOW *bar = derwin(parentWIN, height, win_width, starty, 0);
+  wbkgd(bar, COLOR_PAIR(1));
+  werase(bar);
 
-    wrefresh(bar);
-    return bar;
+  mvwprintw(bar, 0, 0, "-- NORMAL --");
+  mvwprintw(bar, 0, win_width / 3, current_file.c_str());
+  mvwprintw(bar, 0, win_width * 6 / 10, "Press ':' to enter command");
+
+  wrefresh(bar);
+  return bar;
 }
 
-std::string get_command_input(WINDOW *bar, int *cancelled)
-{
-    std::string input;
+std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled) {
+  // If the command is cancelled the integer that is pointed as parameter will
+  // be 1
 
-    werase(bar);
-    wmove(bar, 0, 0);
-    wrefresh(bar);
+  int win_height, win_width;
+  getmaxyx(bar, win_height, win_width);
 
-    echo();
-    curs_set(1);
-    mvwprintw(bar, 0, 0, ":");
-    wrefresh(bar);
+  std::string input;
+  int start_y = win_height - 1;
 
-    int ch;
-    while ((ch = wgetch(bar)) != '\n')
-    {
-        if (ch == 27)
-        { // ESC key
-            *cancelled = 1;
-            break;
-        }
-        else if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b')
-        {
-            if (!input.empty())
-            {
-                input.pop_back();
-                int len = input.size();
-                mvwprintw(bar, 0, len + 1, " ");
-                wmove(bar, 0, len + 1);
-                wrefresh(bar);
-            }
-        }
-        else if (input.size() < MAX_CMD_BAR_INPUT_L - 1 && ch >= 32 && ch <= 126)
-        {
-            input.push_back(ch);
-            mvwprintw(bar, 0, input.size(), "%c", ch);
-            wrefresh(bar);
-        }
+  werase(bar);
+  wmove(bar, start_y, 0);
+  wrefresh(bar);
+
+  // echo(); Ah şu hata
+  wbkgd(bar, COLOR_PAIR(1));
+  curs_set(1);
+  mvwprintw(bar, start_y, 0, ":");
+  wrefresh(bar);
+
+  int ch;
+  while ((ch = wgetch(bar)) != '\n') {
+    if (ch == 27) { // ESC
+      *cancelled = 1;
+      break;
+    } else if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
+      if (!input.empty()) {
+        input.pop_back();
+        int len = input.size();
+        mvwprintw(bar, start_y, len + 1, " ");
+        wmove(bar, start_y, len + 1);
+        wrefresh(bar);
+      }
+    } else if (input.size() < MAX_CMD_BAR_INPUT_L - 1 && ch >= 32 &&
+               ch <= 126) {
+      input.push_back(ch);
+      mvwprintw(bar, start_y, input.size(), "%c", ch);
+      wrefresh(bar);
     }
+  }
 
-    noecho();
-    curs_set(0);
-    werase(bar);
-    wrefresh(bar);
+  noecho();
+  curs_set(0);
+  werase(bar);
+  wrefresh(bar);
 
-    if (*cancelled)
-    {
-        return "";
-    }
+  if (*cancelled) {
+    return "";
+  }
 
-    return input;
+  return input;
 }
