@@ -1,11 +1,15 @@
 #ifndef EDITOR_WIN_HPP
 #define EDITOR_WIN_HPP
 
-#include "../../../common/styles/style.hpp"
-#include "../../status_bar/status_bar.hpp"
+#include <fstream>
 #include <ncurses.h>
+#include <sstream>
 #include <string>
 
+#include "../../../common/styles/style.hpp"
+#include "../../status_bar/status_bar.hpp"
+
+// NOTE: Add these enumerationss to types.hpp
 typedef enum class EDITOR_MODE { NORMAL, INSERT, VISUAL, COMMAND } EDITOR_MODE;
 
 typedef enum class EDITOR_FILE_STATUS {
@@ -19,8 +23,21 @@ typedef enum class EDITOR_OPEN_MODE {
   OPEN_FOLDER
 } EDITOR_OPEN_MODE;
 
+typedef struct Cursor {
+  int row = 1;
+  int col = 1;
+} Cursor;
+
 class EditorWin : public StatusBar {
+
 private:
+  std::string file_buffer;
+  std::vector<std::string> editor_buffer;
+  Cursor cursor;
+
+  std::string getFileContent(std::string &path);
+  std::vector<std::string> createEditorBuffer(std::string file_buffer);
+
 protected:
   EDITOR_FILE_STATUS file_status;
   EDITOR_MODE mode = EDITOR_MODE::NORMAL;
