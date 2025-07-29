@@ -2,6 +2,7 @@
 #define EDITOR_WIN_HPP
 
 #include <fstream>
+#include <iostream>
 #include <ncurses.h>
 #include <sstream>
 #include <string>
@@ -37,6 +38,7 @@ private:
 
   std::string getFileContent(std::string &path);
   std::vector<std::string> createEditorBuffer(std::string file_buffer);
+  void renderFile(std::vector<std::string> buf);
 
 protected:
   EDITOR_FILE_STATUS file_status;
@@ -52,6 +54,8 @@ public:
 
   void open(EDITOR_OPEN_MODE mode, const std::string &path = "");
   std::string getStatusBarCommand();
+
+  void printEditorBuf(); // TEST:
 };
 
 #endif // EDITOR_WIN_HPP

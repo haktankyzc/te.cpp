@@ -129,7 +129,7 @@ public:
     } else { // ARG_NONE
       initTerm();
       // EntryWin::openEntryWin();
-      EditorWin::open(EDITOR_OPEN_MODE::OPEN_FILE, "yeni.txt");
+      EditorWin::open(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
     }
 
     if (LINES < style.required_term_rows() ||
@@ -177,6 +177,7 @@ public:
       //return EXIT_SUCCESS;
     }
     */
+
     int ch;
     while ((ch = getch()) != 'q') {
       InputEvent event = InputHandler::getUserInput(ch);
@@ -188,7 +189,8 @@ public:
       }
     }
 
-    endwin();
+    // endwin();
+    // EditorWin::printEditorBuf();
     return EXIT_SUCCESS;
   }
 };

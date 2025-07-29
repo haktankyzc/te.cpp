@@ -23,16 +23,17 @@ void EditorWin::open(EDITOR_OPEN_MODE open_mode, const std::string &path) {
     // TODO: File Tree is not implemented yet :()
     break;
   }
-
-  file_buffer = getFileContent(current_file_path); // Read the file
-
   // Define the window object
   editor_win = newwin(Style::instance().term_rows(),
                       Style::instance().term_cols(), 0, 0);
+
+  file_buffer = getFileContent(current_file_path); // Read the file
+  editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
+  renderFile(editor_buffer);
+  StatusBar::draw_status_bar(editor_win);
+
   wclear(stdscr);   // Clear the screen for page change
   wrefresh(stdscr); //
-
-  StatusBar::draw_status_bar(editor_win);
 
   wrefresh(editor_win);
 }
@@ -50,12 +51,9 @@ EditorWin::createEditorBuffer(std::string file_buffer) {
 
   int term_col = Style::instance().term_cols() -
                  Style::instance().editor_buffer_vertical_padding();
-  int term_row = Style::instance().term_rows();
 
   std::vector<std::string> editorBuf;
   std::string line = "";
-
-  int row_index = 0;
 
   for (int index = 0; index < file_buffer.length(); index++) {
 
@@ -79,13 +77,42 @@ EditorWin::createEditorBuffer(std::string file_buffer) {
   return editorBuf;
 }
 
+void EditorWin::renderFile(std::vector<std::string> buf) {
+  int col_offset = Style::instance().editor_buffer_vertical_padding();
+  int term_col = Style::instance().term_cols();
+  int term_row = Style::instance().term_rows();
+
+  int row = 1;
+
+  for (const std::string &line : buf) {
+    int col = col_offset;
+    for (char ch : line) {
+      if (col > term_col) {
+        row++;
+        col = col_offset;
+      }
+      if (row >= term_row - 1)
+        return;
+      mvwaddch(editor_win, row, col, ch);
+      col++;
+    }
+    row++; // yeni satıra geç
+  }
+}
+
 std::string EditorWin::getStatusBarCommand() {
-  // Easinesss for get_command_input() func from StatusBar
+  // Abstraction for get_command_input() func from StatusBar
   int cancelled = 0;
   std::string command = StatusBar::get_command_input(editor_win, &cancelled);
   if (cancelled) {
     return "";
   } else {
     return command;
+  }
+}
+
+void EditorWin::printEditorBuf() {
+  for (std::string s : editor_buffer) {
+    std::cout << s << std::endl;
   }
 }
