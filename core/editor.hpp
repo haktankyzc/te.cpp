@@ -76,7 +76,7 @@ public:
     raw();
     keypad(stdscr, TRUE);
     noecho();
-    curs_set(0);
+    curs_set(1);
 
     int r, c = 0;
     getmaxyx(stdscr, r, c); // Terminal boyutunu alalim kardess
@@ -91,6 +91,7 @@ public:
     // Entry Screen Pairs
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Sİyah üstü yeşil yazı
     init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
+    init_pair(3, COLOR_WHITE, COLOR_BLACK); // Yeşil üstü siyah yazı
   }
 
   int startApp(int argc, char *argv[]) {
@@ -129,7 +130,7 @@ public:
     } else { // ARG_NONE
       initTerm();
       // EntryWin::openEntryWin();
-      EditorWin::open(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
+      EditorWin::draw(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
     }
 
     if (LINES < style.required_term_rows() ||
@@ -179,13 +180,14 @@ public:
     */
 
     int ch;
+    move(0, 0); // Move cursor to the top-left corner
     while ((ch = getch()) != 'q') {
       InputEvent event = InputHandler::getUserInput(ch);
       if (event.type == InputType::KEY_PRESS_COLON) {
         std::string com = EditorWin::getStatusBarCommand();
-        endwin();
-        std::cout << " Entered command: " << com << std::endl;
-        return EXIT_SUCCESS;
+        //endwin();
+        //std::cout << " Entered command: " << com << std::endl;
+        //return EXIT_SUCCESS;
       }
     }
 

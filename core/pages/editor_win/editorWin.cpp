@@ -7,9 +7,23 @@
 EditorWin::EditorWin() {}
 EditorWin::~EditorWin() {}
 
-void EditorWin::open(EDITOR_OPEN_MODE open_mode, const std::string &path) {
+void EditorWin::render() {
+  file_buffer = getFileContent(current_file_path); // Read the file
+  editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
+  renderFile(editor_buffer);
+  StatusBar::draw_status_bar(editor_win);
+
+  wclear(stdscr);   // Clear the screen for page change
+  wrefresh(stdscr); //
+
+  wrefresh(editor_win);
+}
+
+void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
 
   // Window opening options
+  current_open_mode = open_mode;
+  current_file_path = path;
   switch (open_mode) {
   case EDITOR_OPEN_MODE::NEW_FILE:
     file_status = EDITOR_FILE_STATUS::NEW_FILE;
@@ -26,16 +40,7 @@ void EditorWin::open(EDITOR_OPEN_MODE open_mode, const std::string &path) {
   // Define the window object
   editor_win = newwin(Style::instance().term_rows(),
                       Style::instance().term_cols(), 0, 0);
-
-  file_buffer = getFileContent(current_file_path); // Read the file
-  editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
-  renderFile(editor_buffer);
-  StatusBar::draw_status_bar(editor_win);
-
-  wclear(stdscr);   // Clear the screen for page change
-  wrefresh(stdscr); //
-
-  wrefresh(editor_win);
+  render();
 }
 
 std::string EditorWin::getFileContent(std::string &path) {
@@ -82,7 +87,7 @@ void EditorWin::renderFile(std::vector<std::string> buf) {
   int term_col = Style::instance().term_cols();
   int term_row = Style::instance().term_rows();
 
-  int row = 1;
+  int row = 0;
 
   for (const std::string &line : buf) {
     int col = col_offset;
@@ -104,15 +109,26 @@ std::string EditorWin::getStatusBarCommand() {
   // Abstraction for get_command_input() func from StatusBar
   int cancelled = 0;
   std::string command = StatusBar::get_command_input(editor_win, &cancelled);
-  if (cancelled) {
-    return "";
-  } else {
-    return command;
-  }
+  StatusBar::draw_status_bar(editor_win); // Redraw the status bar
+  EditorWin::draw(current_open_mode, current_file_path); // Reopen the file
+  return command;
 }
 
 void EditorWin::printEditorBuf() {
   for (std::string s : editor_buffer) {
     std::cout << s << std::endl;
+  }
+}
+
+void handleCursorMove(CURSOR_MOVEMENT direction) {
+  switch (direction) {
+  case CURSOR_MOVEMENT::UP:
+    if (cursor.row > 0) {
+      move(--cursor.row, cursor.col);
+    }
+    break;
+
+  default:
+    break;
   }
 }

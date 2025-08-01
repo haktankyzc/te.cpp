@@ -5,17 +5,18 @@
 #include <string>
 #include <vector>
 
-class Style {
+class Style
+{
 public:
-  static Style &instance() {
+  static Style &instance()
+  {
     static Style instance;
     return instance;
   }
 
   // constants getters
-  int editor_buffer_vertical_padding() const {
-    return m_editor_buffer_vertical_padding;
-  }
+  int status_bar_height() const { return m_status_bar_height; }
+  int editor_buffer_vertical_padding() const { return m_editor_buffer_vertical_padding; }
   int padding_l_r() const { return m_padding_l_r; }
   int padding_t_b() const { return m_padding_t_b; }
   int required_term_rows() const { return m_required_term_rows; }
@@ -29,11 +30,12 @@ public:
   int term_cols() const { return M_TERM_COLS; }
 
   // First is x (COLS), second is y (ROWS)
-  void updateFromWindowSize(int COLS, int ROWS) {
+  void updateFromWindowSize(int COLS, int ROWS)
+  {
     std::lock_guard<std::mutex> lock(m_mutex);
     // TODO
     M_TERM_COLS = COLS;
-    M_TERM_ROWS = ROWS;
+    M_TERM_ROWS = ROWS - m_status_bar_height;
   }
 
 private:
@@ -47,6 +49,7 @@ private:
   const int m_required_term_rows = 30;
   const int m_required_term_cols = 80;
   const int m_editor_buffer_vertical_padding = 3;
+  const int m_status_bar_height = 1;
   // Editor ekraninda metin ekranin soldan ve sagdan 4. indexinden
   // basliyor
 

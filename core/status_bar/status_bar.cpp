@@ -3,7 +3,8 @@
 StatusBar::StatusBar() {}
 StatusBar::~StatusBar() {}
 
-WINDOW *StatusBar::draw_status_bar(WINDOW *parentWIN) {
+WINDOW *StatusBar::draw_status_bar(WINDOW *parentWIN)
+{
   int win_height, win_width;
   getmaxyx(parentWIN, win_height, win_width);
 
@@ -25,7 +26,8 @@ WINDOW *StatusBar::draw_status_bar(WINDOW *parentWIN) {
   return bar;
 }
 
-std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled) {
+std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled)
+{
   // If the command is cancelled the integer that is pointed as parameter will
   // be 1
 
@@ -35,31 +37,39 @@ std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled) {
   std::string input;
   int start_y = win_height - 1;
 
-  werase(bar);
+  wmove(bar, start_y, 1); // ":" karakterinin sağından itibaren
+  wclrtoeol(bar);         // satır sonuna kadar temizle;
   wmove(bar, start_y, 0);
   wrefresh(bar);
 
   // echo(); Ah şu hata
-  wbkgd(bar, COLOR_PAIR(1));
+  wbkgdset(bar, COLOR_PAIR(1));
   curs_set(1);
   mvwprintw(bar, start_y, 0, ":");
   wrefresh(bar);
 
   int ch;
-  while ((ch = wgetch(bar)) != '\n') {
-    if (ch == 27) { // ESC
+  while ((ch = wgetch(bar)) != '\n')
+  {
+    if (ch == 27)
+    { // ESC
       *cancelled = 1;
       break;
-    } else if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b') {
-      if (!input.empty()) {
+    }
+    else if (ch == KEY_BACKSPACE || ch == 127 || ch == '\b')
+    {
+      if (!input.empty())
+      {
         input.pop_back();
         int len = input.size();
         mvwprintw(bar, start_y, len + 1, " ");
         wmove(bar, start_y, len + 1);
         wrefresh(bar);
       }
-    } else if (input.size() < MAX_CMD_BAR_INPUT_L - 1 && ch >= 32 &&
-               ch <= 126) {
+    }
+    else if (input.size() < MAX_CMD_BAR_INPUT_L - 1 && ch >= 32 &&
+             ch <= 126)
+    {
       input.push_back(ch);
       mvwprintw(bar, start_y, input.size(), "%c", ch);
       wrefresh(bar);
@@ -71,7 +81,8 @@ std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled) {
   werase(bar);
   wrefresh(bar);
 
-  if (*cancelled) {
+  if (*cancelled)
+  {
     return "";
   }
 
