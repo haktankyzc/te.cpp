@@ -1,6 +1,11 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+
+// =======================================
+// =        INPUT_HANDLING               =
+// =======================================
+
 typedef enum class InputType
 {
     KEY_PRESS_UP,
@@ -36,5 +41,33 @@ struct InputEvent
     int y = -1;
     char ch = '\0'; 
 };
+
+// =======================================
+// =            EDITOR WINDOW            =
+// =======================================
+
+typedef enum class EDITOR_MODE { NORMAL, INSERT, VISUAL, COMMAND } EDITOR_MODE;
+
+typedef enum class EDITOR_FILE_STATUS {
+  NEW_FILE,
+  EXISTING_FILE,
+} EDITOR_FILE_STATUS;
+
+typedef enum class EDITOR_OPEN_MODE {
+  NEW_FILE,
+  OPEN_FILE,
+  OPEN_FOLDER
+} EDITOR_OPEN_MODE;
+
+typedef enum class CURSOR_MOVEMENT {
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+} CURSOR_MOVEMENT;
+
+// =======================================
+// =     EMPTY
+// =======================================
 
 #endif // TYPES_HPP

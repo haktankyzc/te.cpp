@@ -1,23 +1,24 @@
 #include "editorWin.hpp"
-#include <fstream>
-#include <ncurses.h>
-#include <sstream>
-#include <vector>
 
-EditorWin::EditorWin() {}
-EditorWin::~EditorWin() {}
+// =======================================
+// =     CONSTRUCTOR  / DESTRUCTOR       =
+// =======================================
 
-void EditorWin::render() {
-  file_buffer = getFileContent(current_file_path); // Read the file
-  editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
-  renderFile(editor_buffer);
-  StatusBar::draw_status_bar(editor_win);
+EditorWin::EditorWin() { 
+  cursor = new Cursor(0, 0);
 
-  wclear(stdscr);   // Clear the screen for page change
-  wrefresh(stdscr); //
-
-  wrefresh(editor_win);
+  editor_mode = EDITOR_MODE::NORMAL;
+  
+  x_offset = 0;
+  y_offset = 0;
 }
+EditorWin::~EditorWin() {
+  delete cursor;
+}
+
+// =======================================
+// =     INITIALIZATION OF WINDOW        =
+// =======================================
 
 void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
 
@@ -41,6 +42,22 @@ void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
   editor_win = newwin(Style::instance().term_rows(),
                       Style::instance().term_cols(), 0, 0);
   render();
+}
+
+// =======================================
+// =     FILE RENDERING FUNCTIONS        =
+// =======================================
+
+void EditorWin::render() {
+  file_buffer = getFileContent(current_file_path); // Read the file
+  editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
+  renderFile(editor_buffer);
+  StatusBar::draw_status_bar(editor_win);
+
+  wclear(stdscr);   // Clear the screen for page change
+  wrefresh(stdscr); //
+
+  wrefresh(editor_win);
 }
 
 std::string EditorWin::getFileContent(std::string &path) {
@@ -105,30 +122,57 @@ void EditorWin::renderFile(std::vector<std::string> buf) {
   }
 }
 
+
+// =======================================
+// =     STATUS_BAR ABSTRACTIONS         =
+// =======================================
+
 std::string EditorWin::getStatusBarCommand() {
   // Abstraction for get_command_input() func from StatusBar
   int cancelled = 0;
   std::string command = StatusBar::get_command_input(editor_win, &cancelled);
   StatusBar::draw_status_bar(editor_win); // Redraw the status bar
-  EditorWin::draw(current_open_mode, current_file_path); // Reopen the file
+  EditorWin::render(); // Reopen the file
   return command;
 }
+
+// =======================================
+// =          CURSOR HANDLING            =
+// =======================================
+
+void EditorWin::handleCursorMove(CURSOR_MOVEMENT direction) {
+  switch (direction) {
+  case CURSOR_MOVEMENT::UP:
+    if (cursor->row > 0) {
+      cursor->moveUp();
+    }
+    break;
+  case CURSOR_MOVEMENT::DOWN:
+    if (cursor->row < Style::instance().term_rows() - 1) {
+      cursor->moveDown();
+    }
+    break;
+  case CURSOR_MOVEMENT::LEFT:
+    if (cursor->col > 0) {
+      cursor->moveLeft();
+    }
+    break;
+  case CURSOR_MOVEMENT::RIGHT:
+    if (cursor->col < Style::instance().term_cols() - 1) {
+      cursor->moveRight();
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+// =======================================
+// ===     LOGGING FUNCTIONS           ===
+// =======================================
 
 void EditorWin::printEditorBuf() {
   for (std::string s : editor_buffer) {
     std::cout << s << std::endl;
-  }
-}
-
-void handleCursorMove(CURSOR_MOVEMENT direction) {
-  switch (direction) {
-  case CURSOR_MOVEMENT::UP:
-    if (cursor.row > 0) {
-      move(--cursor.row, cursor.col);
-    }
-    break;
-
-  default:
-    break;
   }
 }

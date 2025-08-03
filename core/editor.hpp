@@ -130,7 +130,7 @@ public:
     } else { // ARG_NONE
       initTerm();
       // EntryWin::openEntryWin();
-      EditorWin::draw(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
+      EditorWin::init(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
     }
 
     if (LINES < style.required_term_rows() ||
@@ -183,15 +183,22 @@ public:
     move(0, 0); // Move cursor to the top-left corner
     while ((ch = getch()) != 'q') {
       InputEvent event = InputHandler::getUserInput(ch);
-      if (event.type == InputType::KEY_PRESS_COLON) {
+      if(event.type == InputType::KEY_PRESS_UP)
+        EditorWin::handleCursorMove(CURSOR_MOVEMENT::UP);
+      if(event.type == InputType::KEY_PRESS_DOWN)
+        EditorWin::handleCursorMove(CURSOR_MOVEMENT::DOWN);
+      if(event.type == InputType::KEY_PRESS_LEFT)
+        EditorWin::handleCursorMove(CURSOR_MOVEMENT::LEFT);
+      if(event.type == InputType::KEY_PRESS_RIGHT)
+        EditorWin::handleCursorMove(CURSOR_MOVEMENT::RIGHT);
+      if (event.type == InputType::KEY_PRESS_COLON)
         std::string com = EditorWin::getStatusBarCommand();
-        //endwin();
-        //std::cout << " Entered command: " << com << std::endl;
-        //return EXIT_SUCCESS;
-      }
     }
 
-    // endwin();
+    endwin();
+    std::cout << EditorWin::cursor->col << " "
+              << EditorWin::cursor->row << std::endl;
+    std::cout << "Exiting te editor..." << std::endl;
     // EditorWin::printEditorBuf();
     return EXIT_SUCCESS;
   }

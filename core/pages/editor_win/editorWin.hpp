@@ -11,64 +11,49 @@
 #include "../../../common/types.hpp"
 #include "../../status_bar/status_bar.hpp"
 
-// NOTE: Add these enumerationss to types.hpp
-typedef enum class EDITOR_MODE { NORMAL, INSERT, VISUAL, COMMAND } EDITOR_MODE;
-
-typedef enum class EDITOR_FILE_STATUS {
-  NEW_FILE,
-  EXISTING_FILE,
-} EDITOR_FILE_STATUS;
-
-typedef enum class EDITOR_OPEN_MODE {
-  NEW_FILE,
-  OPEN_FILE,
-  OPEN_FOLDER
-} EDITOR_OPEN_MODE;
-
-typedef enum class CURSOR_MOVEMENT {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-} CURSOR_MOVEMENT;
-
-class Cursor {
+class Cursor
+{
 public:
   int row;
   int col;
 
   Cursor(int r = 0, int c = 0) : row(r), col(c) {}
 
-  void moveUp() {
+  void moveUp()
+  {
     row--;
     move(row, col);
   }
-  void moveDown() {
+  void moveDown()
+  {
     row++;
     move(row, col);
   }
-  void moveLeft() {
+  void moveLeft()
+  {
     col--;
     move(row, col);
   }
-  void moveRight() {
+  void moveRight()
+  {
     col++;
     move(row, col);
   }
 
-  void reset() {
+  void reset()
+  {
     row = 0;
     col = 0;
     move(row, col);
   }
 };
 
-class EditorWin : public StatusBar {
+class EditorWin : public StatusBar
+{
 
 private:
   std::string file_buffer;
   std::vector<std::string> editor_buffer;
-  Cursor *cursor;
 
   int x_offset = 0;
   int y_offset = 0;
@@ -78,7 +63,7 @@ private:
   void renderFile(std::vector<std::string> buf);
 
 protected:
-  EDITOR_MODE mode = EDITOR_MODE::NORMAL;
+  EDITOR_MODE editor_mode;
 
   EDITOR_OPEN_MODE current_open_mode;
   std::string current_file_path;
@@ -89,6 +74,7 @@ public:
   ~EditorWin();
 
   WINDOW *editor_win;
+  Cursor *cursor;
 
   void init(EDITOR_OPEN_MODE mode, const std::string &path = "");
   void render();
