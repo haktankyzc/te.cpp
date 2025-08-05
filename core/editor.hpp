@@ -92,6 +92,7 @@ public:
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Sİyah üstü yeşil yazı
     init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
     init_pair(3, COLOR_WHITE, COLOR_BLACK); // Yeşil üstü siyah yazı
+    init_pair(4, COLOR_BLUE, COLOR_BLACK); // Yeşil üstü siyah yazı
   }
 
   int startApp(int argc, char *argv[]) {
@@ -130,7 +131,7 @@ public:
     } else { // ARG_NONE
       initTerm();
       // EntryWin::openEntryWin();
-      EditorWin::init(EDITOR_OPEN_MODE::OPEN_FILE, "../CMakeLists.txt");
+      EditorWin::init(EDITOR_OPEN_MODE::OPEN_FILE, "../common/types.hpp");
     }
 
     if (LINES < style.required_term_rows() ||

@@ -99,29 +99,40 @@ EditorWin::createEditorBuffer(std::string file_buffer) {
   return editorBuf;
 }
 
-void EditorWin::renderFile(std::vector<std::string> buf) {
+void EditorWin::renderFile(std::vector<std::string>& buf) {
   int col_offset = Style::instance().editor_buffer_vertical_padding();
   int term_col = Style::instance().term_cols();
   int term_row = Style::instance().term_rows();
+  wattron(editor_win,COLOR_PAIR(4));
+  for(int i = 0; i < term_row; ++i) {
+    mvwaddch(editor_win, i, 0, '~'); // Fill the first row with spaces
+  }
+  wattroff(editor_win,COLOR_PAIR(4));
+
 
   int row = 0;
 
-  for (const std::string &line : buf) {
+  for (int i = y_offset; i < buf.size(); ++i) {
+    const std::string& line = buf[i];
+
     int col = col_offset;
-    for (char ch : line) {
-      if (col > term_col) {
+    for (int j = x_offset; j < line.size(); ++j) {
+      if (col >= term_col) {
         row++;
         col = col_offset;
       }
       if (row >= term_row - 1)
         return;
-      mvwaddch(editor_win, row, col, ch);
+
+      mvwaddch(editor_win, row, col, line[j]);
       col++;
     }
-    row++; // yeni satıra geç
+
+    row++; // yeni terminal satırına geç (ekranda)
+    if (row >= term_row - 1)
+      break;
   }
 }
-
 
 // =======================================
 // =     STATUS_BAR ABSTRACTIONS         =
@@ -129,10 +140,14 @@ void EditorWin::renderFile(std::vector<std::string> buf) {
 
 std::string EditorWin::getStatusBarCommand() {
   // Abstraction for get_command_input() func from StatusBar
+  //Cancelled var is cancelled :) , if the command is empty, it will return empty :)
   int cancelled = 0;
   std::string command = StatusBar::get_command_input(editor_win, &cancelled);
-  StatusBar::draw_status_bar(editor_win); // Redraw the status bar
+  
+  //TODO: Always render parentWin first 
   EditorWin::render(); // Reopen the file
+  StatusBar::draw_status_bar(editor_win); // Redraw the status bar
+  
   return command;
 }
 

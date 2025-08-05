@@ -1,4 +1,4 @@
-# TODO 
+# TODO
 
 ## Base functionalities of a text editor 💻
 
@@ -9,26 +9,30 @@
 - [x] Editor Page ->  parse file into editor buffer for virtulization
 - [x] Editor Page -> render file
 - [x] Editor Page -> Complete Cursor movements base
-- [ ] Editor Page -> Render scrollable content (longer than the terminal screen)
-- [ ] Editor Page edit file
-- [ ] Editor Page command bar
+- [x] Editor Page -> Render scrollable content (longer than the terminal screen) (with offsets)
+- [ ] Editor Page -> Move scrollable content with cursor movements
+- [ ] Editor Page edit scrollable file
+- [ ] Editor Page status bar events
 
 - [ ] UNDO / REDO Stack (CTRL z CTRL y logic )
 
 - [ ] File tree extension
-- [ ] Resizability
+- [ ] Resizability + ZOOM IN / ZOOM OUT
 
 ## Advanced features like 🚀
+
 - [ ] Choice mode (VISUAL MODE)
-- [ ] Shortcuts: 
-  * Copy - paste
-  * Undo / Redo
-  * Multi Choice (multi-cursor)
-  * Moving between words, not chars
-  * Block cursor (visual-block mode)
+- [ ] Mouse events handling
+- [ ] Shortcuts:
+  - Copy - paste
+  - Undo / Redo
+  - Multi Choice (multi-cursor)
+  - Moving between words, not chars
+  - Block cursor (visual-block mode)
 
 ## AND THE LAST LEVEL MONSTER ☠️
 
 - [ ] Live file editing with other users (MQTT support -> live rooms)
 - [ ] SYNTAX HIGHLIGHTING (Colored *code* rendering)
-- [ ] Language server
+- [ ] Language server for a programming language (probably lovely c++ ❤️)
+- [ ] Being able to add or write a plugin for TE_CPP (plugin managing and documantation)  

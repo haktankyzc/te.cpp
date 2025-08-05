@@ -1,6 +1,12 @@
 #ifndef EDITOR_WIN_HPP
 #define EDITOR_WIN_HPP
 
+/** NOTE
+ * If you suffer understanding the x, y, col, row things just look at here
+ * ROW = Y
+ * COL(UMN) = X
+*/
+
 #include <fstream>
 #include <iostream>
 #include <ncurses.h>
@@ -55,12 +61,12 @@ private:
   std::string file_buffer;
   std::vector<std::string> editor_buffer;
 
-  int x_offset = 0;
-  int y_offset = 0;
+  int x_offset; //Renderer starts rendering from this column
+  int y_offset; //Renderer starts rendering from this row
 
   std::string getFileContent(std::string &path);
   std::vector<std::string> createEditorBuffer(std::string file_buffer);
-  void renderFile(std::vector<std::string> buf);
+  void renderFile(std::vector<std::string>& buf);
 
 protected:
   EDITOR_MODE editor_mode;

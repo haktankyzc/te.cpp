@@ -14,8 +14,8 @@ WINDOW *StatusBar::draw_status_bar(WINDOW *parentWIN)
   // start_color();
   // init_pair(1, COLOR_BLACK, COLOR_GREEN);
 
-  WINDOW *bar = derwin(parentWIN, height, win_width, starty, 0);
-  wbkgd(bar, COLOR_PAIR(1));
+  bar = derwin(parentWIN, height, win_width, starty, 0);
+  wbkgdset(bar, COLOR_PAIR(1));
   werase(bar);
 
   mvwprintw(bar, 0, 0, "-- NORMAL --");
@@ -80,7 +80,7 @@ std::string StatusBar::get_command_input(WINDOW *bar, int *cancelled)
   curs_set(0);
   werase(bar);
   wrefresh(bar);
-
+  wbkgdset(bar, COLOR_PAIR(3));
   if (*cancelled)
   {
     return "";
