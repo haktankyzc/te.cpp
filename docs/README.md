@@ -4,6 +4,8 @@
 
 **TE** is a text editor project being developed for educational purposes and aims to have vim-like skills and more ...
 
+<img title="Flight Window Design" src="./assets/editorWin_review.png" style="border-radius:10px">
+
 ------
 
 Project is designed (structured) in a layered way (not conventional include-src structure)

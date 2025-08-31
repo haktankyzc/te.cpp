@@ -29,6 +29,7 @@
 
 #define VERSION "0.1.0"
 
+// NOTE: SHORTCUTS
 namespace fs = std::filesystem;
 auto &style = Style::instance();
 
@@ -41,6 +42,7 @@ typedef enum PAGE {
 
 PAGE current_page = PAGE_ENTRY; // NOTE: entry page
 
+// NOTE: Opening arguments parsing
 namespace Args {
 enum Type {
   ARG_VERSION,
@@ -88,11 +90,13 @@ public:
     // Renkleri tanımla
     start_color();
     use_default_colors();
-    // Entry Screen Pairs
+
+    //* Entry Screen Pairs
+    // TODO:  Split here to style.hpp ( void initColors() and some comments )
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Sİyah üstü yeşil yazı
     init_pair(2, COLOR_BLACK, COLOR_GREEN); // Yeşil üstü siyah yazı
     init_pair(3, COLOR_WHITE, COLOR_BLACK); // Yeşil üstü siyah yazı
-    init_pair(4, COLOR_BLUE, COLOR_BLACK); // Yeşil üstü siyah yazı
+    init_pair(4, COLOR_BLUE, COLOR_BLACK);  // Yeşil üstü siyah yazı
   }
 
   int startApp(int argc, char *argv[]) {
@@ -144,8 +148,10 @@ public:
       return EXIT_FAILURE;
     }
 
+    // =======================================
+    // =     BASIC ENTRY WIN TEST            =
+    // =======================================
     /*
-    // Entry Win basic test example
     int ch;
     while ((ch = getch()) != 'q')
     {
@@ -180,26 +186,30 @@ public:
     }
     */
 
+    // =======================================
+    // =     BASIC EDITOR WIN TEST         =
+    // =======================================
+
     int ch;
     move(0, 0); // Move cursor to the top-left corner
     while ((ch = getch()) != 'q') {
       InputEvent event = InputHandler::getUserInput(ch);
-      if(event.type == InputType::KEY_PRESS_UP)
+      if (event.type == InputType::KEY_PRESS_UP)
         EditorWin::handleCursorMove(CURSOR_MOVEMENT::UP);
-      if(event.type == InputType::KEY_PRESS_DOWN)
+      if (event.type == InputType::KEY_PRESS_DOWN)
         EditorWin::handleCursorMove(CURSOR_MOVEMENT::DOWN);
-      if(event.type == InputType::KEY_PRESS_LEFT)
+      if (event.type == InputType::KEY_PRESS_LEFT)
         EditorWin::handleCursorMove(CURSOR_MOVEMENT::LEFT);
-      if(event.type == InputType::KEY_PRESS_RIGHT)
+      if (event.type == InputType::KEY_PRESS_RIGHT)
         EditorWin::handleCursorMove(CURSOR_MOVEMENT::RIGHT);
       if (event.type == InputType::KEY_PRESS_COLON)
-        std::string com = EditorWin::getStatusBarCommand();
+        std::string com = EditorWin::handleStatusBarCommand();
     }
 
     endwin();
-    std::cout << EditorWin::cursor->col << " "
-              << EditorWin::cursor->row << std::endl;
-    std::cout << "Exiting te editor..." << std::endl;
+    std::cout << EditorWin::cursor->col << " " << EditorWin::cursor->row
+              << std::endl;
+    std::cout << "` te editor..." << std::endl;
     // EditorWin::printEditorBuf();
     return EXIT_SUCCESS;
   }

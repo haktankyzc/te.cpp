@@ -4,17 +4,18 @@
 // =     CONSTRUCTOR  / DESTRUCTOR       =
 // =======================================
 
-EditorWin::EditorWin() { 
+EditorWin::EditorWin() {
   cursor = new Cursor(0, 0);
 
   editor_mode = EDITOR_MODE::NORMAL;
-  
+
   x_offset = 0;
   y_offset = 0;
+
+  num_cols = Style::instance().term_cols();
+  num_rows = Style::instance().term_rows();
 }
-EditorWin::~EditorWin() {
-  delete cursor;
-}
+EditorWin::~EditorWin() { delete cursor; }
 
 // =======================================
 // =     INITIALIZATION OF WINDOW        =
@@ -51,7 +52,7 @@ void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
 void EditorWin::render() {
   file_buffer = getFileContent(current_file_path); // Read the file
   editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
-  renderFile(editor_buffer);
+  render_buffer(editor_buffer);
   StatusBar::draw_status_bar(editor_win);
 
   wclear(stdscr);   // Clear the screen for page change
@@ -99,21 +100,20 @@ EditorWin::createEditorBuffer(std::string file_buffer) {
   return editorBuf;
 }
 
-void EditorWin::renderFile(std::vector<std::string>& buf) {
+void EditorWin::render_buffer(std::vector<std::string> &buf) {
   int col_offset = Style::instance().editor_buffer_vertical_padding();
   int term_col = Style::instance().term_cols();
   int term_row = Style::instance().term_rows();
-  wattron(editor_win,COLOR_PAIR(4));
-  for(int i = 0; i < term_row; ++i) {
+  wattron(editor_win, COLOR_PAIR(4));
+  for (int i = 0; i < term_row; ++i) {
     mvwaddch(editor_win, i, 0, '~'); // Fill the first row with spaces
   }
-  wattroff(editor_win,COLOR_PAIR(4));
-
+  wattroff(editor_win, COLOR_PAIR(4));
 
   int row = 0;
 
   for (int i = y_offset; i < buf.size(); ++i) {
-    const std::string& line = buf[i];
+    const std::string &line = buf[i];
 
     int col = col_offset;
     for (int j = x_offset; j < line.size(); ++j) {
@@ -138,16 +138,17 @@ void EditorWin::renderFile(std::vector<std::string>& buf) {
 // =     STATUS_BAR ABSTRACTIONS         =
 // =======================================
 
-std::string EditorWin::getStatusBarCommand() {
+std::string EditorWin::handleStatusBarCommand() {
   // Abstraction for get_command_input() func from StatusBar
-  //Cancelled var is cancelled :) , if the command is empty, it will return empty :)
+  // Cancelled var is cancelled :) , if the command is empty, it will return
+  // empty :)
   int cancelled = 0;
   std::string command = StatusBar::get_command_input(editor_win, &cancelled);
-  
-  //TODO: Always render parentWin first 
-  EditorWin::render(); // Reopen the file
+
+  // TODO: Always render parentWin first
+  EditorWin::render();                    // Reopen the file
   StatusBar::draw_status_bar(editor_win); // Redraw the status bar
-  
+
   return command;
 }
 
