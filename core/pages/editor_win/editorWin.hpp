@@ -18,34 +18,36 @@
 #include "../../status_bar/status_bar.hpp"
 
 // NOTE: Just moves the cursor and keeps the location
+// TODO: Will be developed for the multiple and block cursor skills (later
+// for sure :)
 class Cursor {
 public:
-  int row;
-  int col;
+  int editor_row;
+  int editor_col;
 
-  Cursor(int r = 0, int c = 0) : row(r), col(c) {}
+  Cursor(int r = 0, int c = 0) : editor_row(r), editor_col(c) {}
 
   void moveUp() {
-    row--;
-    move(row, col);
+    editor_row--;
+    move(editor_row, editor_col);
   }
   void moveDown() {
-    row++;
-    move(row, col);
+    editor_row++;
+    move(editor_row, editor_col);
   }
   void moveLeft() {
-    col--;
-    move(row, col);
+    editor_col--;
+    move(editor_row, editor_col);
   }
   void moveRight() {
-    col++;
-    move(row, col);
+    editor_col++;
+    move(editor_row, editor_col);
   }
 
   void reset() {
-    row = 0;
-    col = 0;
-    move(row, col);
+    editor_row = 0;
+    editor_col = 0;
+    move(editor_row, editor_col);
   }
 };
 
@@ -55,16 +57,21 @@ private:
   std::string file_buffer;
   std::vector<std::string> editor_buffer;
 
-  int x_offset; // Renderer starts rendering from this column
-  int y_offset; // Renderer starts rendering from this row
+  // NOTE: File renderer offsets (start coordinates)
+  int x_offset;
+  int y_offset;
 
-  int num_cols;
-  int num_rows;
+  // NOTE: Editor Win Size and Location
+  int start_x;  // left up x
+  int start_y;  // left up y
+  int num_cols; // Cols of win
+  int num_rows; // Rows of win
 
   // NOTE: File parser and renderer funcs
   std::string getFileContent(std::string &path);
   std::vector<std::string> createEditorBuffer(std::string file_buffer);
   void render_buffer(std::vector<std::string> &buf);
+  void moveRenderedContent(CURSOR_MOVEMENT direction);
 
 protected:
   // NOTE: ENUMS for modes

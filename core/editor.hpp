@@ -73,7 +73,7 @@ class TE : public InputHandler, public EntryWin, public EditorWin {
 private:
 public:
   void initTerm() {
-    // Initializes ncurses and sets the terminal settings
+    // INFO:  Initializes ncurses and sets the terminal settings
     initscr();
     raw();
     keypad(stdscr, TRUE);
@@ -87,7 +87,7 @@ public:
     mousemask(ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION,
               NULL); // For mouse events
 
-    // Renkleri tanımla
+    // INFO:  Renkleri tanımla
     start_color();
     use_default_colors();
 
@@ -207,8 +207,8 @@ public:
     }
 
     endwin();
-    std::cout << EditorWin::cursor->col << " " << EditorWin::cursor->row
-              << std::endl;
+    std::cout << EditorWin::cursor->editor_col << " "
+              << EditorWin::cursor->editor_row << std::endl;
     std::cout << "` te editor..." << std::endl;
     // EditorWin::printEditorBuf();
     return EXIT_SUCCESS;

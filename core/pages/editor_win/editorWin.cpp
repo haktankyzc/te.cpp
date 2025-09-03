@@ -1,4 +1,5 @@
 #include "editorWin.hpp"
+#include <ncurses.h>
 
 // =======================================
 // =     CONSTRUCTOR  / DESTRUCTOR       =
@@ -10,10 +11,13 @@ EditorWin::EditorWin() {
   editor_mode = EDITOR_MODE::NORMAL;
 
   x_offset = 0;
-  y_offset = 0;
+  y_offset = 5;
 
-  num_cols = Style::instance().term_cols();
-  num_rows = Style::instance().term_rows();
+  // INFO: Set window size and loc
+  start_x = getbegx(editor_win);
+  start_y = getbegy(editor_win);
+  num_cols = getmaxx(editor_win);
+  num_rows = getmaxy(editor_win);
 }
 EditorWin::~EditorWin() { delete cursor; }
 
@@ -49,6 +53,7 @@ void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
 // =     FILE RENDERING FUNCTIONS        =
 // =======================================
 
+// NOTE: Main render func
 void EditorWin::render() {
   file_buffer = getFileContent(current_file_path); // Read the file
   editor_buffer = createEditorBuffer(file_buffer); // Parse the file  to lines
@@ -59,6 +64,25 @@ void EditorWin::render() {
   wrefresh(stdscr); //
 
   wrefresh(editor_win);
+}
+
+// NOTE: moves content for -one- block to a direction
+void EditorWin::moveRenderedContent(CURSOR_MOVEMENT direction) {
+  switch (direction) {
+  case CURSOR_MOVEMENT::UP:
+    y_offset--;
+    break;
+  case CURSOR_MOVEMENT::DOWN:
+    y_offset++;
+    break;
+  case CURSOR_MOVEMENT::RIGHT:
+    x_offset++;
+    break;
+  case CURSOR_MOVEMENT::LEFT:
+    x_offset--;
+    break;
+  }
+  render_buffer(editor_buffer);
 }
 
 std::string EditorWin::getFileContent(std::string &path) {
@@ -159,28 +183,31 @@ std::string EditorWin::handleStatusBarCommand() {
 void EditorWin::handleCursorMove(CURSOR_MOVEMENT direction) {
   switch (direction) {
   case CURSOR_MOVEMENT::UP:
-    if (cursor->row > 0) {
+    if (cursor->editor_row > 0) {
       cursor->moveUp();
+    } else if (y_offset != 0) {
+      y_offset -= 1;
     }
     break;
   case CURSOR_MOVEMENT::DOWN:
-    if (cursor->row < Style::instance().term_rows() - 1) {
+    if (cursor->editor_row < Style::instance().term_rows() - 1) {
       cursor->moveDown();
     }
     break;
   case CURSOR_MOVEMENT::LEFT:
-    if (cursor->col > 0) {
+    if (cursor->editor_col > 0) {
       cursor->moveLeft();
     }
     break;
   case CURSOR_MOVEMENT::RIGHT:
-    if (cursor->col < Style::instance().term_cols() - 1) {
+    if (cursor->editor_col < Style::instance().term_cols() - 1) {
       cursor->moveRight();
     }
     break;
   default:
     break;
   }
+  render();
 }
 
 // =======================================
