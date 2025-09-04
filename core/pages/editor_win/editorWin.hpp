@@ -97,7 +97,9 @@ public:
   void handleCursorMove(CURSOR_MOVEMENT direction);
 
   // NOTE: Test functions
-  void printEditorBuf(); // TEST:
+  void printEditorBuf();
+  void printNumColRow();
+  void printCursorLoc();
 };
 
 #endif // EDITOR_WIN_HPP

@@ -189,7 +189,6 @@ public:
     // =======================================
     // =     BASIC EDITOR WIN TEST         =
     // =======================================
-
     int ch;
     move(0, 0); // Move cursor to the top-left corner
     while ((ch = getch()) != 'q') {
@@ -209,6 +208,7 @@ public:
     endwin();
     std::cout << EditorWin::cursor->editor_col << " "
               << EditorWin::cursor->editor_row << std::endl;
+    std::cout << Style::instance().term_rows() << std::endl;
     std::cout << "` te editor..." << std::endl;
     // EditorWin::printEditorBuf();
     return EXIT_SUCCESS;

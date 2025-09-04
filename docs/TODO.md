@@ -13,6 +13,9 @@
 - [x] Editor Page -> render file
 - [x] Editor Page -> Complete Cursor movements base
 - [x] Editor Page -> Render scrollable content (longer than the terminal screen) (with offsets)
+
+- [ ] WARN: Split status bar from editorwin (in the aspect of inheritance)
+
 - [ ] Editor Page -> Move scrollable content with cursor movements
 - [ ] Editor Page edit scrollable file
 - [ ] Editor Page save edited file

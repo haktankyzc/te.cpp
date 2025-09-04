@@ -1,4 +1,5 @@
 #include "editorWin.hpp"
+#include <iostream>
 #include <ncurses.h>
 
 // =======================================
@@ -6,7 +7,7 @@
 // =======================================
 
 EditorWin::EditorWin() {
-  cursor = new Cursor(0, 0);
+  cursor = new Cursor(0, 1);
 
   editor_mode = EDITOR_MODE::NORMAL;
 
@@ -16,8 +17,9 @@ EditorWin::EditorWin() {
   // INFO: Set window size and loc
   start_x = getbegx(editor_win);
   start_y = getbegy(editor_win);
-  num_cols = getmaxx(editor_win);
-  num_rows = getmaxy(editor_win);
+  num_cols = Style::instance().term_cols();
+  num_rows =
+      Style::instance().term_rows(); //- Style::instance().status_bar_height();
 }
 EditorWin::~EditorWin() { delete cursor; }
 
@@ -46,6 +48,7 @@ void EditorWin::init(EDITOR_OPEN_MODE open_mode, const std::string &path) {
   // Define the window object
   editor_win = newwin(Style::instance().term_rows(),
                       Style::instance().term_cols(), 0, 0);
+
   render();
 }
 
@@ -60,13 +63,17 @@ void EditorWin::render() {
   render_buffer(editor_buffer);
   StatusBar::draw_status_bar(editor_win);
 
+  wmove(editor_win, cursor->editor_row, cursor->editor_col);
+
   wclear(stdscr);   // Clear the screen for page change
   wrefresh(stdscr); //
 
   wrefresh(editor_win);
 }
 
-// NOTE: moves content for -one- block to a direction
+// NOTE: moves content for -one- block to a direction (if direct is UP, it goes
+// up in file)
+// WARN: There is no need for this now
 void EditorWin::moveRenderedContent(CURSOR_MOVEMENT direction) {
   switch (direction) {
   case CURSOR_MOVEMENT::UP:
@@ -127,7 +134,7 @@ EditorWin::createEditorBuffer(std::string file_buffer) {
 void EditorWin::render_buffer(std::vector<std::string> &buf) {
   int col_offset = Style::instance().editor_buffer_vertical_padding();
   int term_col = Style::instance().term_cols();
-  int term_row = Style::instance().term_rows();
+  int term_row = Style::instance().term_rows() - 1;
   wattron(editor_win, COLOR_PAIR(4));
   for (int i = 0; i < term_row; ++i) {
     mvwaddch(editor_win, i, 0, '~'); // Fill the first row with spaces
@@ -156,6 +163,7 @@ void EditorWin::render_buffer(std::vector<std::string> &buf) {
     if (row >= term_row - 1)
       break;
   }
+  wmove(editor_win, cursor->editor_row, cursor->editor_col);
 }
 
 // =======================================
@@ -173,6 +181,9 @@ std::string EditorWin::handleStatusBarCommand() {
   EditorWin::render();                    // Reopen the file
   StatusBar::draw_status_bar(editor_win); // Redraw the status bar
 
+  wmove(editor_win, cursor->editor_row, cursor->editor_col);
+  wrefresh(editor_win);
+
   return command;
 }
 
@@ -186,16 +197,19 @@ void EditorWin::handleCursorMove(CURSOR_MOVEMENT direction) {
     if (cursor->editor_row > 0) {
       cursor->moveUp();
     } else if (y_offset != 0) {
-      y_offset -= 1;
+      y_offset--;
     }
     break;
   case CURSOR_MOVEMENT::DOWN:
     if (cursor->editor_row < Style::instance().term_rows() - 1) {
       cursor->moveDown();
+    } else if (cursor->editor_row =
+                   Style::instance().term_rows() - 1) { // PERF: Tie here up
+      y_offset++;
     }
     break;
   case CURSOR_MOVEMENT::LEFT:
-    if (cursor->editor_col > 0) {
+    if (cursor->editor_col > 3) {
       cursor->moveLeft();
     }
     break;
@@ -218,4 +232,13 @@ void EditorWin::printEditorBuf() {
   for (std::string s : editor_buffer) {
     std::cout << s << std::endl;
   }
+}
+
+void EditorWin::printNumColRow() {
+  std::cout << "Num Cols: " << num_cols << std::endl
+            << "Num Rows: " << num_rows << std::endl;
+}
+
+void EditorWin::printCursorLoc() {
+  std::cout << cursor->editor_col << cursor->editor_row << std::endl;
 }
